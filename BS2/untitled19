@@ -1,0 +1,125 @@
+'{$STAMP BS2}
+'{$PBASIC 2.5}
+' -----[ Code Title ]-----------------------------------------------------------------------
+' Lab --- Eric Pang Period 1 Reid
+' -----[ Variables/Constants]----------------------------------------------------
+irDetector VAR bit
+WALL_DETECTED CON 0
+WALL_UNDETECTED CON 1
+OUTPUT 11
+  initLed VAR OUT11 'Port for initialization LED
+INPUT 4 'PhotoResistor port 
+  photoResistor VAR IN4
+OUTPUT 6 
+TURNON CON 1 'Turn LED's on or off
+TURNOFF CON 0
+x VAR word 'Variable for duration of servo movements
+t var word 'Index for the number of turns made
+  t = 0 
+timeToDischarge var Word
+counter var Word
+counter = 0
+Btn pin 3
+btnWrk Var Byte 
+irDetector = 1
+' -----[ Main Routine ]----------------------------------------------------------------
+Main:
+DO 
+  PULSOUT 12, 850
+  PULSOUT 13, 650
+  FREQOUT 1, 1, 38500
+  irDetector = IN0
+  'DEBUG ? irDetector
+LOOP WHILE irDetector = 1
+    GOSUB turnLeft
+DO 
+  PULSOUT 12, 850
+  PULSOUT 13, 650
+  FREQOUT 1, 1, 38501
+  irDetector = IN0
+  'DEBUG ? irDetector
+LOOP WHILE irDetector = 1
+    GOSUB turnRight
+DO 
+  PULSOUT 12, 850
+  PULSOUT 13, 650
+  FREQOUT 1, 1, 38501
+  irDetector = IN0
+  'DEBUG ? irDetector
+LOOP WHILE irDetector = 1
+  GOSUB turnRight
+  DO 
+  PULSOUT 12, 850
+  PULSOUT 13, 650
+  FREQOUT 1, 1, 38501
+  irDetector = IN0
+  'DEBUG ? irDetector
+LOOP WHILE irDetector = 1
+GOSUB moveForward
+  STOP
+' -----[ Sub Routines ]----------------------------------------------------------------
+BackRight:
+  GOSUB moveBackward
+  GOSUB turnRight
+RETURN
+  
+  BackLeft:
+  GOSUB moveBackward
+  GOSUB turnLeft
+RETURN
+  
+moveForward:
+  FOR x = 1 to 17:
+    PULSOUT 12, 850
+    PULSOUT 13, 650
+    PAUSE 20
+  NEXT
+RETURN
+
+moveForward2:
+  FOR x = 1 to 120:
+    PULSOUT 12, 850
+    PULSOUT 13, 650
+    PAUSE 20
+  NEXT
+RETURN
+
+moveBackward:
+  FOR x = 1 to 100:
+    PULSOUT 12, 650
+    PULSOUT 13, 850
+    PAUSE 20
+  NEXT
+RETURN
+
+init:
+  initLED = TURNON 'Blinks the LED on
+    PAUSE 500
+  initLed = TURNOFF'Turns off the LED
+    PAUSE 500
+  FREQOUT 10, 1000, 2000
+    INPUT 4
+RETURN
+
+turnLeft: 'Tank turn versions
+  for x = 1 to 21:
+    PULSOUT 12, 650 
+    PULSOUT 13, 650 
+    PAUSE 20
+  NEXT
+RETURN
+
+turnRight:
+  for x = 1 to 20:
+    PULSOUT 12, 850 
+    PULSOUT 13, 850 
+    PAUSE 20
+  NEXT
+RETURN
+stopMove: 'Stops movement 
+  for x = 1 to 100:
+    PULSOUT 12, 850 
+    PULSOUT 13, 650 
+    PAUSE 20
+  NEXT
+RETURN

@@ -1,0 +1,40 @@
+'{$STAMP BS2}
+'{$PBASIC 2.5}
+' -----[ Code Title ]-----------------------------------------------------------------------
+' Lab --- Eric Pang Period 1 Reid
+' -----[ Variables/Constants]----------------------------------------------------
+OUTPUT 11
+  initLed VAR OUT11 'Port for initialization LED 
+TURNON CON 1 'Turn LED's on or off
+TURNOFF CON 0
+LCD_PIN PIN 0
+T9600 CON 84
+LCD_CLS CON 12
+LCD_ON CON 22
+hours VAR Byte
+minutes VAR Byte
+seconds VAR Byte
+LINE_1_0 CON 148
+LINE_1_4 CON 153
+LINE_1_6 CON 155
+enter CON 13
+LINE_POS CON WORD
+' -----[ Main Routine ]---------------------------------------------------------------
+GOSUB init 'initialization
+SEROUT LCD_PIN,T9600, [LCD_ON, LCD_CLS] 'Initialize LCD
+PAUSE 5
+
+DO
+  SEROUT LCD_PIN, T9600, [LINE_POS, "Eric"]
+  Pause 991
+  SEROUT LCD_PIN,T9600, [LCD_ON, LCD_CLS]
+LOOP
+' -----[ Sub Routines ]----------------------------------------------------------------
+init:
+ initLED = TURNON 'Blinks the LED on
+  PAUSE 500
+ initLed = TURNOFF'Turns off the LED
+  PAUSE 500
+  FREQOUT 10, 1000, 2000
+  INPUT 4
+RETURN

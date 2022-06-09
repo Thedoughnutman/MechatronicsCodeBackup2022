@@ -1,0 +1,627 @@
+'{$STAMP BS2}
+'{$PBASIC 2.5}
+' -----[ Code Title ]-----------------------------------------------------------------
+' THE FINAL LAB --- Eric Pang Period 1 Reid
+' -----[ Variables/Constants]---------------------------------------------------------
+OUTPUT 11
+  initLed VAR OUT11 'Port for initialization LED
+TURNON CON 1 'Turn LED's on or off
+TURNOFF CON 0
+
+OUTPUT 10
+  TestLed VAR OUT10 'Port for 10 LED
+'---[END OF Initialization]-----------------------------------------------------------
+x VAR Word 'Variable for duration of servo movements // bit nib byte word
+z VAR Word
+c VAR Word
+irDetector var bit
+'irDetector PIN 1
+irDetector2 PIN 2
+NEG_EDGE CON 0
+startPulse VAR Word
+pulse0 VAR Word
+pulse1 VAR Word
+pulse2 VAR Word
+dataRemote VAR Nib
+dataRemoteONE VAR byte
+dataRemoteTWO VAR byte
+dataRemoteTHREE VAR byte
+'t var word 'Index for the number of turns made
+ ' t = 0 
+timeToDischarge var Word
+counter var Word
+C6  CON	1047          	' ERIC COMPLETE LIST FROM PARALLAX WEBSITE Piano notes // should be octave higher to sound better
+C6s CON 1109 ' ALSO D6b
+D6  CON	1175
+D6s CON 1245 ' ALSO E6b
+E6  CON	1319
+F6  CON	1397
+F6s CON 1480 ' ALSO G6b
+G6  CON	1568
+G6s CON 1661 ' ALSO A6b
+A6  CON	1760
+A6s CON 1865 ' ALSO B6b
+Be6 CON	1976 ' CANNOT SAY B6
+C7  CON	2093
+C7s CON 2218 ' ALSO D7b
+D7  CON	2349
+D7s CON 2489 ' ALSO E7b
+E7  CON	2637
+F7  CON	2793
+F7s CON 2960 ' ALSO G7b
+G7  CON	3136
+G7s CON 3322 ' ALSO A7b
+A7  CON	3520
+A7s CON 3729 ' ALSO B7b
+Be7 CON	3951 ' CANNOT SAY B7
+C8  CON	4186          	' End of piano notes
+
+
+' -----[ Main Routine ]---------------------------------------------------------------
+'NOTE: PBASIC HAS A MAX OF 500 LINES AND 4 NESTED GOSUBS 
+Main:
+GOSUB init
+PAUSE 200
+'GOSUB Light
+GOSUB readRemote
+ PAUSE 500 'to prevent the robot from moving forward while catching IR signals 
+  'GOSUB displayNumberPressed  
+  'GOSUB debukQTI 'Check timeToDischarge
+  DO
+   PULSOUT 12, 850
+   PULSOUT 13, 650
+   FREQOUT 1, 1, 38500
+   irDetector = IN0
+     PAUSE 20
+   HIGH 3
+     PAUSE 3
+   RCTIME 5, 1, timeToDischarge  
+   IF (timeToDischarge < 520) then
+     PAUSE 20
+     GOSUB turnLeftQTI 'Left
+   elseIF (timeToDischarge > 900) then   
+     PAUSE 20
+     GOSUB turnLeftQTI 'Prevents a spinout
+     elseIF (timeToDischarge > 600) then
+     PAUSE 20
+     GOSUB turnRightQTI 'Right 
+   ENDIF
+  LOOP UNTIL irDetector = 1 
+  
+  IF dataRemoteONE + 1 = 4 and dataRemoteTWO + 1 = 3 THEN 
+    GOSUB fourthree
+  ENDIF
+  IF dataRemoteONE + 1 = 4 and dataRemoteTWO + 1 = 2 THEN 
+    GOSUB fourtwo
+  ENDIF
+  IF dataRemoteONE + 1 = 4 and dataRemoteTWO + 1 = 1 THEN 
+    GOSUB fourone
+  ENDIF
+  IF dataRemoteONE + 1 = 3 and dataRemoteTWO + 1= 4 THEN 
+    GOSUB threefour
+  ENDIF
+  IF dataRemoteONE + 1 = 3 and dataRemoteTWO + 1= 2 THEN 
+    GOSUB threetwo
+  ENDIF
+  IF dataRemoteONE + 1 = 3 and dataRemoteTWO + 1= 1 THEN 
+    GOSUB threeone
+  ENDIF
+  IF dataRemoteONE + 1 = 2 and dataRemoteTWO + 1= 4 THEN 
+    GOSUB twofour    
+  ENDIF
+  IF dataRemoteONE + 1 = 2 and dataRemoteTWO + 1= 3 THEN 
+    GOSUB twothree
+  ENDIF
+  IF dataRemoteONE + 1 = 2 and dataRemoteTWO + 1 = 1 THEN 
+    GOSUB twoone
+  ENDIF
+  IF dataRemoteONE + 1= 1 and dataRemoteTWO + 1= 4 THEN 
+    GOSUB onefour 
+  ENDIF
+  IF dataRemoteONE + 1= 1 and dataRemoteTWO + 1= 3 THEN 
+    GOSUB onethree
+  ENDIF
+  IF dataRemoteONE + 1= 1 and dataRemoteTWO + 1= 2 THEN 
+    GOSUB onetwo    
+  ENDIF
+  
+    IF dataRemoteTWO + 1 = 1 and dataRemoteTHREE + 1 = 2 THEN   'POS 2
+      GOSUB oneBACK2
+    ENDIF
+    IF dataRemoteTWO + 1 = 2 and dataRemoteTHREE + 1 = 2 THEN   
+      GOSUB twoBACK2
+    ENDIF
+    IF dataRemoteTWO + 1 = 3 and dataRemoteTHREE + 1 = 2 THEN   ' from pos 3 GOTO and Dump to pos 2 /// or3
+      GOSUB threeBACK2
+    ENDIF
+    IF dataRemoteTWO + 1 = 4 and dataRemoteTHREE + 1 = 2 THEN   
+      GOSUB fourBACK2
+    ENDIF
+      
+    IF dataRemoteTWO + 1 = 1 and dataRemoteTHREE + 1 = 3 THEN   ' POS 3
+      GOSUB oneBACK3
+    ENDIF
+    IF dataRemoteTWO + 1 = 2 and dataRemoteTHREE + 1 = 3 THEN   
+      GOSUB twoBACK3
+    ENDIF
+    IF dataRemoteTWO + 1 = 3 and dataRemoteTHREE + 1 = 3 THEN   
+      GOSUB threeBACK3
+    ENDIF
+    IF dataRemoteTWO + 1 = 4 and dataRemoteTHREE + 1 = 3 THEN   
+      GOSUB fourBACK3
+    ENDIF
+ 'GOSUB Yankee 'Song
+ 
+ IF dataRemoteTWO + 1 = 1 THEN
+   GOSUB return1
+ ENDIF
+ IF dataRemoteTWO + 1 = 2 THEN
+   GOSUB return2
+ ENDIF
+ IF dataRemoteTWO + 1 = 3 THEN
+   GOSUB return3
+ ENDIF
+ IF dataRemoteTWO + 1 = 4 THEN
+   GOSUB return4
+ ENDIF
+ 
+ 
+GOSUB NOKIA 
+GOSUB NOKIA
+GOSUB NOKIA 
+GOSUB NOKIA
+GOSUB NOKIA
+'GOSUB NOKIA
+GOTO Main
+' -----[ Sub Routines ]----------------------------------------------------------------
+init: 'Initialization -- NOTE THE LED IS ON PORT 11
+  initLED = TURNON 'Blinks the LED on
+    PAUSE 500
+  initLed = TURNOFF'Turns off the LED
+    PAUSE 500
+  FREQOUT 10, 1000, 2000
+    INPUT 4
+    'GOSUB clock9
+    'GOSUB DUMPclock3
+    'GOSUB clock9
+    GOSUB clock9
+    'GOSUB NOKIA
+RETURN
+'------------------BASIC MOVEMENTS ------------------------------
+moveForward: 'A Fast Forward
+  FOR x = 1 TO 5:
+    PULSOUT 12, 850
+    PULSOUT 13, 650
+    PAUSE 20
+  NEXT
+RETURN
+moveBackward: 'A Fast Backward
+  FOR x = 1 TO 100:
+    PULSOUT 12, 650
+    PULSOUT 13, 850
+    PAUSE 20
+  NEXT
+RETURN
+turnLeft: 'Tank Turn Version
+  FOR x = 1 TO 21:
+    PULSOUT 12, 650 
+    PULSOUT 13, 650 
+    PAUSE 20
+  NEXT
+RETURN
+turnRight: 'Tank Turn Version
+  FOR x = 1 TO 21:
+    PULSOUT 12, 850 
+    PULSOUT 13, 850 
+    PAUSE 20
+  NEXT
+RETURN
+stopMove: 'Stops ALL Movement 
+  FOR x = 1 TO 20:
+    PULSOUT 12, 850 
+    PULSOUT 13, 650 
+    PAUSE 20
+  NEXT
+RETURN
+'-------------------------------------------------------------
+readRemote:
+ DO
+    PULSIN irDetector2, NEG_EDGE, startPulse
+    PULSIN irDetector2, NEG_EDGE, pulse0
+    PULSIN irDetector2, NEG_EDGE, pulse1
+    PULSIN irDetector2, NEG_EDGE, pulse2
+  LOOP UNTIL (startPulse >= 1000)
+    dataRemoteONE.BIT0 = pulse0.BIT9
+    dataRemoteONE.BIT1 = pulse1.BIT9
+    dataRemoteONE.BIT2 = pulse2.BIT9
+PAUSE 500 'Wont capture the same IR mesage twice
+  initLED = TURNON 'Blinks the LED on
+    PAUSE 100
+  initLed = TURNOFF
+  DO
+    PULSIN irDetector2, NEG_EDGE, startPulse
+    PULSIN irDetector2, NEG_EDGE, pulse0
+    PULSIN irDetector2, NEG_EDGE, pulse1
+    PULSIN irDetector2, NEG_EDGE, pulse2
+  LOOP UNTIL (startPulse >= 1000)
+    dataRemoteTWO.BIT0 = pulse0.BIT9
+    dataRemoteTWO.BIT1 = pulse1.BIT9
+    dataRemoteTWO.BIT2 = pulse2.BIT9
+    PAUSE 500
+      initLED = TURNON 'Blinks the LED on
+        PAUSE 100
+      initLed = TURNOFF
+        PAUSE 100
+      initLED = TURNON 'Blinks the LED on
+        PAUSE 100
+      initLed = TURNOFF
+   DO  'added this new one for the trash dump---------------
+    PULSIN irDetector2, NEG_EDGE, startPulse
+    PULSIN irDetector2, NEG_EDGE, pulse0
+    PULSIN irDetector2, NEG_EDGE, pulse1
+    PULSIN irDetector2, NEG_EDGE, pulse2
+  LOOP UNTIL (startPulse >= 1000)
+    dataRemoteTHREE.BIT0 = pulse0.BIT9
+    dataRemoteTHREE.BIT1 = pulse1.BIT9
+    dataRemoteTHREE.BIT2 = pulse2.BIT9
+    PAUSE 500
+      initLED = TURNON 'Blinks the LED on
+        PAUSE 100
+      initLed = TURNOFF
+        PAUSE 100
+      initLED = TURNON 'Blinks the LED on
+        PAUSE 100
+      initLed = TURNOFF
+        PAUSE 100
+      initLED = TURNON 'Blinks the LED on
+        PAUSE 100
+      initLed = TURNOFF
+      FREQOUT 10, 1000, 3542
+RETURN
+'displayNumberPressed:
+ ' SELECT dataRemoteONE
+  '  CASE 0
+ '     GOSUB keyPadNumberOnePushed
+  '  CASE 1
+      'GOSUB keyPadNumberTwoPushed
+   ' CASE 2
+'      GOSUB keyPadNumberThreePushed
+ '   CASE 3
+  '    GOSUB keyPadNumberFourPushed
+'  ENDSELECT
+ '   SELECT dataRemoteTWO
+  '  CASE 0
+   '   GOSUB keyPadNumberOnePushed
+    'CASE 1
+     ' GOSUB keyPadNumberTwoPushed
+   ' CASE 2
+    '  GOSUB keyPadNumberThreePushed
+   ' CASE 3
+    '  GOSUB keyPadNumberFourPushed
+ ' ENDSELECT
+ ' DEBUG "Going to location", DEC1 dataRemoteONE + 1, " and to location ", DEC1 dataRemoteTWO + 1
+'RETURN
+'keyPadNumberOnePushed:
+ ' DEBUG "KeyPad number One had been pushed, ", BIN3 ? dataRemote 
+'RETURN
+'keyPadNumberTwoPushed:
+'  DEBUG "KeyPad number Two had been pushed, ", BIN3 ? dataRemote
+'RETURN
+'keyPadNumberThreePushed:
+ ' DEBUG "KeyPad number Three had been pushed, ", BIN3 ? dataRemote
+'RETURN
+'keyPadNumberFourPushed:
+ ' DEBUG "KeyPad number Four had been pushed, ", BIN3 ? dataRemote
+'RETURN
+
+FindLeft: 'Goes forward BUT ONCE there is a wall then turnLeft
+  DO 
+  PULSOUT 12, 850
+  PULSOUT 13, 650
+ ' FREQOUT 1, 1, 38501
+ FREQOUT 1, 1, 40000
+  irDetector = IN0
+LOOP WHILE irDetector = 1
+    GOSUB turnLeft 
+    RETURN
+FindRightFIRST: 'Goes forward BUT ONCE there is a wall then turnRight AND PAUSE
+  DO 
+  PULSOUT 12, 850
+  PULSOUT 13, 650
+  'FREQOUT 1, 1, 38501
+  FREQOUT 1, 1, 40000
+  irDetector = IN0
+LOOP WHILE irDetector = 1
+    PAUSE 500
+    GOSUB turnRight
+    RETURN
+FindLeftFIRST: 'Goes forward ONCE there is a wall then turnLeft AND PAUSE
+  DO 
+  PULSOUT 12, 850
+  PULSOUT 13, 650
+ ' FREQOUT 1, 1, 38501
+ FREQOUT 1, 1, 40000
+  irDetector = IN0
+LOOP WHILE irDetector = 1
+    PAUSE 500
+    GOSUB turnLeft 
+    RETURN
+FindRight: 'Goes forward ONCE there is a wall then turnRight
+  DO 
+  PULSOUT 12, 850
+  PULSOUT 13, 650
+  'FREQOUT 1, 1, 38501
+  FREQOUT 1, 1, 40000
+  irDetector = IN0
+LOOP WHILE irDetector = 1
+    GOSUB turnRight
+    RETURN
+findwallEND: 'MOVES FORWARD Finds a wall and STOPS robot
+DO 
+  PULSOUT 12, 850
+  PULSOUT 13, 650
+  'FREQOUT 1, 1, 38501
+  FREQOUT 1, 1, 40000
+  irDetector = IN0
+LOOP WHILE irDetector = 1
+  GOSUB stopMove
+  RETURN
+reachFourForward: 'facing towards LOC 3
+  GOSUB FindRight 
+  GOSUB FindLeftFIRST 'AT THIS POINT REACHED LOC4 and setting up for loc3 
+RETURN
+reachOneForward: 
+  GOSUB FindLeft
+  GOSUB FindRightFIRST 'AT THIS POINT REACHED LOC1 and setting up for loc2 
+RETURN
+reachThreeLeft: 'REACH 3 and face left
+  GOSUB FindRight
+  GOSUB FindLeft
+  GOSUB FindLeftFIRST
+RETURN
+reachTwoLeft: 'Reach 2 and face left
+  GOSUB FindLeft
+  GOSUB FindRight
+  GOSUB FindLeftFIRST
+RETURN
+' -----[ Sub Routines ]----------------------------------------------------------------
+fourthree:
+  GOSUB reachFourForward
+  GOSUB findwallEND
+RETURN
+fourtwo:
+  GOSUB reachFourForward
+  GOSUB turnLeft
+  GOSUB FindRight
+  GOSUB findwallEND
+RETURN
+fourone:
+  GOSUB reachFourForward
+  GOSUB turnLeft
+  GOSUB findwallEND
+RETURN
+threefour:
+  GOSUB reachThreeLeft
+  GOSUB turnLeft
+  GOSUB findwallEND
+RETURN
+threetwo:
+  GOSUB reachThreeLeft
+  GOSUB turnLeft
+  GOSUB FindRight
+  GOSUB FindRight
+  GOSUB findwallEND
+RETURN
+threeone:
+  GOSUB reachThreeLeft
+  GOSUB turnLeft
+  GOSUB FindRight
+  GOSUB findwallEND
+RETURN
+twofour:
+  GOSUB reachTwoLeft
+  GOSUB turnLeft
+  GOSUB FindLeft
+  GOSUB findwallEND
+RETURN
+twothree:
+  GOSUB reachTwoLeft
+  GOSUB turnLeft
+  GOSUB FindLeft
+  GOSUB FindLeft
+  GOSUB findwallEND
+RETURN
+twoone:
+  GOSUB reachTwoLeft
+  GOSUB turnLeft
+  GOSUB findwallEND
+RETURN
+onefour:
+  GOSUB reachOneForward
+  GOSUB turnRight 
+  GOSUB findwallEND
+RETURN
+onethree:
+  GOSUB reachOneForward
+  GOSUB turnRight 
+  GOSUB FindLeft 
+  GOSUB findwallEND
+RETURN
+onetwo:
+  GOSUB reachOneForward
+  GOSUB findwallEND 
+RETURN
+' -----[ Sub Routines ]----------------------------------------------------------------
+'clock12: 'center SERVO
+' FOR x = 1 to 40
+ ' PULSOUT 15, 750
+ ' PAUSE 20
+' NEXT
+'RETURN
+clock9: 'farthest left
+ FOR c = 1 to 50
+  PULSOUT 15, 1250
+  PAUSE 20
+ NEXT
+RETURN
+DUMPclock3: 'farthest right
+ FOR c = 1 to 50 ' max 65535
+  PULSOUT 15, 250
+  PAUSE 20
+ NEXT
+RETURN
+' -----[ Sub Routines ]----------------------------------------------------------------
+'debukQTI: 
+ ' DO 
+  ' HIGH 3
+   'RCTIME 3, 1, timeToDischarge
+  ' DEBUG ? timeToDischarge
+ '  PAUSE 100
+' LOOP
+turnLeftQTI: 'Tank turn versions
+  counter = counter + 1
+    PULSOUT 12, 650
+    PULSOUT 13, 650
+    PAUSE 20
+  RETURN
+turnRightQTI:
+  counter = counter + 1
+    PULSOUT 12, 850
+    PULSOUT 13, 850
+    PAUSE 20
+  RETURN
+ '------------------------
+ fourBACK2: 'from 2 go to four
+ GOSUB turnLeft
+ GOSUB turnLeft
+ GOSUB FindLeft
+ GOSUB FindWallEND 
+ GOSUB DUMPclock3
+RETURN
+threeBACK2:
+ GOSUB turnLeft
+ GOSUB turnLeft
+ GOSUB FindLeft
+ GOSUB turnLeft
+ GOSUB FindWallEND 
+ GOSUB DUMPclock3
+RETURN
+twoBACK2:
+ GOSUB DUMPclock3
+RETURN 'do nothing here just for var
+oneBACK2:
+ GOSUB turnLeft
+ GOSUB turnLeft
+ GOSUB FindWallEND 'facing directly 1
+ GOSUB DUMPclock3
+RETURN
+  
+oneBACK3:
+ GOSUB turnLeft
+ GOSUB turnLeft
+ GOSUB FindRight
+ GOSUB FindWallEND
+ GOSUB DUMPclock3
+RETURN
+twoBACK3:
+ GOSUB turnLeft
+ GOSUB turnLeft
+ GOSUB FindRight
+ GOSUB FindRight
+ GOSUB FindWallEND
+ GOSUB DUMPclock3
+RETURN
+threeBACK3:
+ GOSUB DUMPclock3
+RETURN
+fourBACK3:
+ GOSUB turnLeft
+ GOSUB turnLeft
+ GOSUB FindWallEND
+ GOSUB DUMPclock3
+RETURN
+
+Light: 'keep flashing when robot in motion 
+  FOR z = 1 TO 10: '65535
+  TestLED = TURNON 'Blinks the LED on
+    PAUSE 200
+  TestLed = TURNOFF'Turns off the LED
+    PAUSE 200
+  NEXT
+RETURN
+
+NOKIA: 'SONG
+FREQOUT 10, 200, E7 'ED F# G# C#B D E BA C# E A
+  PAUSE 50
+FREQOUT 10, 200, D7
+  PAUSE 50
+FREQOUT 10, 400, F7s
+  PAUSE 50
+FREQOUT 10, 400, G7s
+  PAUSE 50
+FREQOUT 10, 200, C7s
+  PAUSE 50
+FREQOUT 10, 200, Be7
+  PAUSE 50
+FREQOUT 10, 400, D7
+  PAUSE 50
+FREQOUT 10, 400, E7
+  PAUSE 50
+FREQOUT 10, 200, Be7
+  PAUSE 50
+FREQOUT 10, 200, A7
+  PAUSE 50
+FREQOUT 10, 400, C7s
+  PAUSE 50
+FREQOUT 10, 400, E7
+  PAUSE 50
+FREQOUT 10, 600, A7
+  PAUSE 50
+RETURN
+
+
+
+return1:
+GOSUB turnRight
+GOSUB turnRight
+GOSUB back
+RETURN
+return2:
+GOSUB turnLeft
+GOSUB turnLeft
+GOSUB Findleft
+GOSUB back
+RETURN
+return3:
+GOSUB turnLeft
+GOSUB turnLeft
+GOSUB Findright
+GOSUB back
+RETURN
+return4:
+GOSUB turnRight
+GOSUB turnRight
+GOSUB back
+RETURN
+
+back:
+DO
+   PULSOUT 12, 850
+   PULSOUT 13, 650
+   FREQOUT 1, 1, 38500
+   irDetector = IN0
+     PAUSE 20
+   HIGH 3
+     PAUSE 3
+   RCTIME 3, 1, timeToDischarge  
+   IF (timeToDischarge < 520) then
+     PAUSE 20
+     GOSUB turnLeftQTI 'Left
+   elseIF (timeToDischarge > 900) then   
+     PAUSE 20
+     GOSUB turnLeftQTI 'Prevents a spinout
+     elseIF (timeToDischarge > 600) then
+     PAUSE 20
+     GOSUB turnRightQTI 'Right 
+   ENDIF
+  LOOP UNTIL irDetector = 1

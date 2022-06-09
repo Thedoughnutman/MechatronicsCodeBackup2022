@@ -1,0 +1,18 @@
+'{$STAMP BS2}
+'{$PBASIC 2.5}
+
+
+
+
+clock9: 
+ FOR x = 1 to 40
+  PULSOUT 15, 1250
+  PAUSE 20
+ NEXT
+RETURN
+clock3:
+ FOR x = 1 to 40
+  PULSOUT 15, 250
+  PAUSE 20
+ NEXT
+RETURN

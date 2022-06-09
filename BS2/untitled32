@@ -1,0 +1,9 @@
+'{$STAMP BS2}
+'{$PBASIC 2.5}
+
+
+C VAR WORD 
+ FOR c = 1 to 60 ' max 65535
+  PULSOUT 15, 350
+  PAUSE 20
+ NEXT

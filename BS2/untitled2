@@ -1,0 +1,10 @@
+'{$STAMP BS2}
+'{$PBASIC 2.5}
+timeToDischarge var Word
+OUTPUT 6
+DO
+  HIGH 6
+  PAUSE 3
+  RCTIME 6, 1, timeToDischarge
+  DEBUG ? timeToDischarge
+LOOP

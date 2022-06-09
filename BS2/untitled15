@@ -1,0 +1,151 @@
+'{$STAMP BS2}
+'{$PBASIC 2.5}
+' -----[ Code Title ]-----------------------------------------------------------------------
+' Lab --- Eric Pang Period 1 Reid
+' -----[ Variables/Constants]----------------------------------------------------
+irDetector VAR bit
+WALL_DETECTED CON 0
+WALL_UNDETECTED CON 1
+OUTPUT 11
+  initLed VAR OUT11 'Port for initialization LED
+INPUT 4 'PhotoResistor port 
+  photoResistor VAR IN4
+OUTPUT 6 
+TURNON CON 1 'Turn LED's on or off
+TURNOFF CON 0
+x VAR word 'Variable for duration of servo movements
+t var word 'Index for the number of turns made
+  t = 0 
+timeToDischarge var Word
+counter var Word
+counter = 0
+Btn pin 3
+btnWrk Var Byte 
+' -----[ Main Routine ]----------------------------------------------------------------
+main:
+
+WHILE irDetector < 
+FREQOUT 1, 1, 40000
+irDetector = IN2
+irDetector = 1
+DEBUG ? irDetector 
+NEXT 
+  DO WHILE counter < 1
+  PULSOUT 12, 850
+  PULSOUT 13, 650
+  FREQOUT 1, 1, 40000
+  irDetector = IN2
+  DEBUG ? irDetector 
+  If irDetector = 0 THEN
+   counter = counter + 1
+   GOSUB moveForward
+   GOSUB Backleft
+   GOSUB moveForward
+  
+   ENDIF
+LOOP
+  DO WHILE counter < 2
+  PULSOUT 12, 850
+  PULSOUT 13, 650
+  FREQOUT 1, 1, 40000
+  irDetector = IN2
+  DEBUG ? irDetector 
+  If irDetector = 0 THEN
+   counter = counter + 1
+      GOSUB moveForward
+   GOSUB BackRight
+      GOSUB moveForward
+   ENDIF
+LOOP
+  DO WHILE counter < 3
+  PULSOUT 12, 850
+  PULSOUT 13, 650
+  FREQOUT 1, 1, 40000
+  irDetector = IN2
+  DEBUG ? irDetector 
+  If irDetector = 0 THEN
+   counter = counter + 1
+      GOSUB moveForward
+   GOSUB BackRight
+      GOSUB moveForward
+   ENDIF
+LOOP
+If counter = 4 then
+END
+ENDIF
+'GOSUB init 'initialization
+' -----[ Sub Routines ]----------------------------------------------------------------
+debuk: 
+  DO
+PAUSE 5
+BUTTON  Btn, 1, 255, 30, btnWrk, 0, No_Press
+DEBUG "fsdfd"
+ LOOP
+BackRight:
+  GOSUB moveBackward
+  GOSUB turnRight
+  RETURN
+  
+  BackLeft:
+  GOSUB moveBackward
+  GOSUB turnLeft
+  RETURN
+  
+moveForward:
+  FOR x = 1 to 20:
+    PULSOUT 12, 850
+    PULSOUT 13, 650
+    PAUSE 20
+  NEXT
+RETURN
+
+moveBackward:
+  FOR x = 1 to 7:
+    PULSOUT 12, 650
+    PULSOUT 13, 850
+    PAUSE 20
+  NEXT
+RETURN
+
+moveForward2:
+  FOR x = 1 to 40:
+    PULSOUT 12, 850
+    PULSOUT 13, 650
+    PAUSE 20
+  NEXT
+RETURN
+
+init:
+  initLED = TURNON 'Blinks the LED on
+    PAUSE 500
+  initLed = TURNOFF'Turns off the LED
+    PAUSE 500
+  FREQOUT 10, 1000, 2000
+    INPUT 4
+Return
+
+turnLeft: 'Tank turn versions
+  for x = 1 to 23:
+    PULSOUT 12, 650 
+    PULSOUT 13, 650 
+    PAUSE 20
+  NEXT
+RETURN
+
+turnRight:
+  for x = 1 to 21:
+    PULSOUT 12, 850 
+    PULSOUT 13, 850 
+    PAUSE 20
+  NEXT
+RETURN
+stopMove: 'Stops movement 
+  for x = 1 to 100:
+    PULSOUT 12, 850 
+    PULSOUT 13, 650 
+    PAUSE 20
+  NEXT
+RETURN
+
+No_Press: 
+ GOTO Main

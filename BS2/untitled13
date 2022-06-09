@@ -1,0 +1,41 @@
+'{$STAMP BS2}
+'{$PBASIC 2.5}
+OUTPUT 11
+  initLed VAR OUT11 'Port for initialization LED
+INPUT 4 'PhotoResistor port 
+  photoResistor VAR IN4
+OUTPUT 6 
+timeToDischarge VAR word
+counter VAR word
+irDetector VAR bit
+TURNON CON 1
+TURNOFF CON 0 
+WALL_DETECTED CON 0
+WALL_UNDETECTED CON 1
+x VAR byte
+counter =  0
+
+'initLED = TURNON
+'PAUSE 500
+'initLED = TURNOFF
+'PAUSE 500
+'FREQOUT 10,1000,2000
+'FREQOUT 10, 600, 200
+
+main:
+FOR x = 1 to 20
+FREQOUT 1, 1, 40000
+irDetector = IN2
+irDetector = 1
+DEBUG ? irDetector 
+NEXT 
+  DO WHILE counter < 1
+  PULSOUT 12, 850
+  PULSOUT 13, 650
+  FREQOUT 1, 1, 40000
+  irDetector = IN2
+  DEBUG ? irDetector 
+  If irDetector = 0 THEN
+   counter = counter + 1
+   endif
+LOOP

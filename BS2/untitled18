@@ -1,0 +1,4 @@
+'{$STAMP BS2}
+'{$PBASIC 2.5}
+
+'max of 500 and 5 gosubs 

@@ -1,0 +1,32 @@
+'{$STAMP BS2}
+'{$PBASIC 2.5}
+
+timeToDischarge VAR word
+counter VAR word
+irDetector VAR bit
+TURNON CON 1
+TUNROFF CON 0 
+WALL_DETECTED CON 0
+WALL_UNDETECTED CON 1
+x VAR byte
+
+initLED = TURNON
+PAUSE 500
+initLED = TURNOFF
+PAUSE 500
+FREQOUT 10,1000,2000
+FREQOUT 10, 600, 200
+
+main:
+FOR x = 1 to 20
+FREQUOUT 1, 1, 40000
+irDetector = IN2
+irDetector = 1
+DEBUG ? irDetector 
+NEXT 
+  DO WHILE irDetector = 1 
+  PULSOUT 12,850
+  PULSOUT 13, 650
+  irDetector = IN2
+  DEBUG ? irDetector 
+LOOP

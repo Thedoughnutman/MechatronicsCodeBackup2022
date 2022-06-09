@@ -1,0 +1,55 @@
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+' -----[ Code Title ]-----------------------------------------------------------------------
+' Timer Lab --- Eric Pang Period 1 Reid
+' -----[ Variables/Constants]----------------------------------------------------
+OUTPUT 11
+  initLed VAR OUT11 'Port for initialization LED
+INPUT 3
+  pushButton var IN3 
+TURNON CON 1 'Turn LED's on or off
+TURNOFF CON 0
+PRESSED CON 1 'PushButton action 
+NOTPRESSED CON 0
+counter var word 'Variable tracking how long the push button has been pressed 
+' -----[ Main Routine ]----------------------------------------------------------------
+main:
+GOSUB init 'Initialization
+  DO 
+   DEBUG "not pressed", CR 'Say the button is not pressed in the debug window 
+   LOOP WHILE (pushButton = NOTPRESSED) 'Loop saying "not pressed" while the pushButton isn't pressed 
+   GOSUB counting 'Enter subroutine once the button is not pressed 
+  IF counter > 3992 THEN 'If the time pressed is more than 3 seconds then...
+     GOSUB overThreshold
+  ELSE 
+     GOSUB underThreshold
+  ENDIF
+' -----[ Sub Routines ]----------------------------------------------------------------
+counting:
+DO
+  counter = counter + 1
+  loop while (pushButton = PRESSED) 'Begin counting once the pushbutton is pressed 
+RETURN 
+
+underThreshold:
+  DEBUG ? counter 'Say "counter = # of how long pressed"
+  DEBUG "pushbutton held for less than 3 seconds", CR
+  DEBUG "now entering low power mode"
+  END 'Low power mode
+RETURN
+
+overThreshold: 
+  DEBUG ? counter 'Say "counter = #"
+  DEBUG "pushbutton held for 3 seconds or more", CR
+  DEBUG "now entering low power mode"
+  END 'Low power mode
+RETURN
+
+init:
+  initLED = TURNON 'Blinks the LED on
+    PAUSE 500
+  initLed = TURNOFF'Turns off the LED
+    PAUSE 500
+  FREQOUT 10, 1000, 2000
+    INPUT 4
+Return

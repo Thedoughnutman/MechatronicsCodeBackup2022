@@ -1,0 +1,94 @@
+'{$STAMP BS2}
+'{$PBASIC 2.5}
+' -----[ Code Title ]-----------------------------------------------------------------------
+' Lab --- Eric Pang Period 1 Reid
+' -----[ Variables/Constants]----------------------------------------------------
+OUTPUT 11
+  initLed VAR OUT11 'Port for initialization LED
+INPUT 4 'PhotoResistor port 
+  photoResistor VAR IN4
+OUTPUT 0 
+TURNON CON 1 'Turn LED's on or off
+TURNOFF CON 0
+x VAR word 'Variable for duration of servo movements
+t var word 'Index for the number of turns made
+  t = 0 
+timeToDischarge var Word
+counter var Word
+' -----[ Main Routine ]----------------------------------------------------------------
+'GOSUB debuk 'Check timeToDischarge Numbers
+GOSUB init 'initialization
+  DO
+   PULSOUT 12, 850
+   PULSOUT 13, 650
+     PAUSE 20
+   HIGH 0
+     PAUSE 3
+   RCTIME 0, 1, timeToDischarge  
+   IF (timeToDischarge < 200) then
+     PAUSE 20
+     GOSUB turnLeft 'Left
+   elseIF (timeToDischarge > 300) then 
+     PAUSE 20
+     GOSUB turnLeft 'Prevents a spinout
+   elseIF (timeToDischarge > 280) then
+     PAUSE 20
+     GOSUB turnRight 'Right 
+   ENDIF
+  LOOP
+END
+' -----[ Sub Routines ]----------------------------------------------------------------
+debuk: 
+  DO 
+   HIGH 0
+   RCTIME 0, 1, timeToDischarge
+   DEBUG ? timeToDischarge
+   PAUSE 100
+ LOOP
+
+moveForward:
+  FOR x = 1 to 39:
+    PULSOUT 12, 850
+    PULSOUT 13, 650
+    PAUSE 20
+  NEXT
+RETURN
+
+moveBackward:
+  FOR x = 1 to 7:
+    PULSOUT 12, 650
+    PULSOUT 13, 850
+    PAUSE 20
+  NEXT
+RETURN
+
+init:
+  initLED = TURNON 'Blinks the LED on
+    PAUSE 500
+  initLed = TURNOFF'Turns off the LED
+    PAUSE 500
+  FREQOUT 10, 1000, 2000
+    INPUT 4
+Return
+
+turnLeft: 'Tank turn versions
+  counter = counter + 1
+    PULSOUT 12, 650
+    PULSOUT 13, 650
+    PAUSE 20
+    RETURN
+
+turnRight:
+  counter = counter + 1
+    PULSOUT 12, 850
+    PULSOUT 13, 850
+    PAUSE 20
+    RETURN
+
+stopMove: 'Stops movement 
+  for x = 1 to 100:
+    PULSOUT 12, 850 
+    PULSOUT 13, 650 
+    PAUSE 20
+  NEXT
+RETURN

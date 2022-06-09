@@ -1,0 +1,27 @@
+'{$STAMP BS2}
+'{$PBASIC 2.5}
+
+
+DO 
+pulsout 12, 850
+pulsout 12, 650
+freqout 1, 1, 38500
+irDetector = IN0
+LOOP while irDetector = 1
+GOSUB turnLeft
+
+DO 
+pulsout 12, 850
+pulsout 12, 650
+freqout 1, 1, 38500
+irDetector = IN0
+LOOP while irDetector = 1
+GOSUB turnRight
+
+DO 
+pulsout 12, 850
+pulsout 12, 650
+freqout 1, 1, 38500
+irDetector = IN0
+LOOP while irDetector = 1
+end

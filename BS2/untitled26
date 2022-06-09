@@ -1,0 +1,164 @@
+'{$STAMP BS2}
+'{$PBASIC 2.5}
+' -----[ Code Title ]-----------------------------------------------------------------
+' Lab - Infrared Remote Control --- Eric Pang Period 1 Reid
+' -----[ Variables/Constants]---------------------------------------------------------
+OUTPUT 11
+  initLed VAR OUT11 'Port for initialization LED
+TURNON CON 1 'Turn LED's on or off
+TURNOFF CON 0
+'---[END OF Initialization]-----------------------------------------------------------
+x VAR Word 'Variable for duration of servo movements // bit nib byte word
+irDetector var bit
+counter1 VAR WORD
+Indexwall VAR WORD
+counter VAR WORD
+C6        	CON	1047          	' Piano notes
+D6        	CON	1175
+E6        	CON	1319
+F6        	CON	1397
+G6        	CON	1568
+A6        	CON	1760
+Be6       	CON	1976
+C7            	CON	2093
+D7            	CON	2349
+E7            	CON	2637
+F7              CON	2793
+G7            	CON	3136
+A7            	CON	3520
+Be7            	CON	3951
+C8            	CON	4186          	' end of piano notes
+' -----[ Main Routine ]---------------------------------------------------------------
+'NOTE: PBASIC HAS A MAX OF 500 LINES AND 4 NESTED GOSUBS 
+Main:
+'GOSUB init
+DO UNTIL counter >= 4
+  counter1 = 0
+  irDetector = 1
+  DO WHILE irDetector = 1
+    GOSUB moveForward
+    FREQOUT 1, 1, 40000
+    irDetector = IN0
+  LOOP
+  PAUSE 500
+    GOSUB turnLeft
+  PAUSE 500
+  irDetector = 1
+  DO WHILE irDetector = 1
+    GOSUB moveForward
+    FREQOUT 1, 1, 40000
+    irDetector = IN0
+    counter1 = counter1 + 1
+  LOOP
+    PAUSE 500
+  IF counter1 <= 10 THEN
+    GOSUB turnAround
+    irDetector = 1
+    DO WHILE irDetector = 1
+      GOSUB moveForward
+      FREQOUT 1, 1, 40000
+      irDetector = IN0
+    LOOP
+  ENDIF
+    counter = counter + 1
+    LOOP
+  GOSUB Yankee
+END
+
+' -----[ Sub Routines ]----------------------------------------------------------------
+init: 'Initialization -- NOTE THE LED IS ON PORT 11
+  initLED = TURNON 'Blinks the LED on
+    PAUSE 500
+  initLed = TURNOFF'Turns off the LED
+    PAUSE 500
+  FREQOUT 10, 1000, 2000
+    INPUT 4
+RETURN
+Yankee: 'SONG
+FREQOUT 10, 500,C7
+PAUSE 50
+FREQOUT 10, 500,C7
+PAUSE 50
+FREQOUT 10, 500,D7
+PAUSE 50
+FREQOUT 10, 500,E7
+PAUSE 50
+FREQOUT 10, 500,C7
+PAUSE 50
+FREQOUT 10, 500,E7
+PAUSE 50
+FREQOUT 10, 1000,D7
+PAUSE 50
+FREQOUT 10, 500,C7
+PAUSE 50
+FREQOUT 10, 500,C7
+PAUSE 50
+FREQOUT 10, 500,D7
+PAUSE 50
+FREQOUT 10, 500,E7
+PAUSE 50
+FREQOUT 10, 500,C7
+PAUSE 50
+FREQOUT 10, 1000,BE6
+PAUSE 50
+FREQOUT 10, 500,C7
+PAUSE 50
+FREQOUT 10, 500,C7
+PAUSE 50
+FREQOUT 10, 500,D7
+PAUSE 50
+FREQOUT 10, 500,E7
+PAUSE 50
+FREQOUT 10, 500,F7
+PAUSE 50
+FREQOUT 10, 500,E7
+PAUSE 50
+FREQOUT 10, 500,D7
+PAUSE 50
+FREQOUT 10, 500,C7
+PAUSE 50
+FREQOUT 10, 500,BE6
+PAUSE 50
+FREQOUT 10, 500,G6
+PAUSE 50
+FREQOUT 10, 500,A6
+PAUSE 50
+FREQOUT 10, 500,BE6
+PAUSE 50
+FREQOUT 10, 1000,C7
+PAUSE 50
+FREQOUT 10, 1000,C7
+'------------------BASIC MOVEMENTS ------------------------------
+moveForward: 'A Fast Forward
+  FOR x = 1 TO 5:
+    PULSOUT 12, 850
+    PULSOUT 13, 650
+    PAUSE 20
+  NEXT
+RETURN
+turnLeft: 'Tank Turn Version
+  FOR x = 1 TO 21:
+    PULSOUT 12, 650 
+    PULSOUT 13, 650 
+    PAUSE 20
+  NEXT
+RETURN
+turnRight: 'Tank Turn Version
+  FOR x = 1 TO 21:
+    PULSOUT 12, 850 
+    PULSOUT 13, 850 
+    PAUSE 20
+  NEXT
+RETURN
+'-------------------------------------------------------------
+turnAround: 'Tank Turn Version
+  FOR x = 1 TO 63:
+    PULSOUT 12, 647 
+    PULSOUT 13, 647 
+    PAUSE 20
+  NEXT
+RETURN
+Detect: 'Goes forward ONCE there is a wall then turnRight
+  FREQOUT 1, 1, 40000
+  irDetector = IN0
+    RETURN

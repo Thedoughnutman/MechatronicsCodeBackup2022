@@ -1,0 +1,10 @@
+'{$STAMP BS2}
+'{$PBASIC 2.5}
+
+WALLDETECTED CON 0
+irDetector var bit
+do
+FREQOUT 1, 1, 38500
+irDetector = IN2
+DEBUG ? irDetector
+loop

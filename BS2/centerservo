@@ -1,0 +1,6 @@
+'{$STAMP BS2}
+'{$PBASIC 2.5}
+do 
+  pulsout 12,750
+  pause 20
+ loop
